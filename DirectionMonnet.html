@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .save-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .home-icon {
+            font-size: 24px;
+            color: #007BFF;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .home-icon:hover {
+            color: #0056b3;
+        }
+
+        .box-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .box-item {
+            padding: 15px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .box-details {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .box-item.open .box-details {
+            display: block;
+        }
+
+        .editable-text {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="save-button" onclick="saveData()">Enregistrer</button>
+        <a href="adminMonnet.html" class="home-icon" title="Retour à l'accueil">🏠</a>
+    </div>
+
+    <div class="box-list">
+        <script>
+            const labels = ["Demande", "Tâches", "Salle", "Document", "Demande tournage", "Compte rendu", "Consignes"];
+            const data = JSON.parse(localStorage.getItem("directionData")) || {};
+            let openBoxIndex = null;
+
+            // Initialisation des données par défaut
+            labels.forEach((label, index) => {
+                if (!data[index]) {
+                    data[index] = { text: "" };
+                }
+            });
+
+            // Affichage des cases
+            labels.forEach((label, index) => {
+                document.write(`
+                    <div class="box-item" id="box-item-${index}" onclick="toggleBox(${index})">
+                        <span class="box-title">${label}</span>
+                        <div class="box-details" onclick="event.stopPropagation();">
+                            <textarea class="editable-text" placeholder="Écrire ici..." oninput="updateData(${index})">${data[index].text}</textarea>
+                        </div>
+                    </div>
+                `);
+            });
+
+            // Enregistrement des données dans le localStorage
+            function saveData() {
+                localStorage.setItem("directionData", JSON.stringify(data));
+                alert("Données enregistrées avec succès !");
+            }
+
+            // Mise à jour des données locales lors des modifications
+            function updateData(index) {
+                const boxItem = document.querySelector(`#box-item-${index}`);
+                data[index].text = boxItem.querySelector(".editable-text").value;
+            }
+
+            // Basculer l'affichage des détails d'une case
+            function toggleBox(index) {
+                const currentBox = document.querySelector(`#box-item-${index}`);
+
+                if (openBoxIndex !== null && openBoxIndex !== index) {
+                    document.querySelector(`#box-item-${openBoxIndex}`).classList.remove("open");
+                }
+
+                if (!currentBox.classList.contains("open")) {
+                    currentBox.classList.add("open");
+                    openBoxIndex = index;
+                }
+            }
+        </script>
+    </div>
+
+</body>
+</html>

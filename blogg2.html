@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog2</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007BFF;
+        }
+
+        #articles-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .article {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .article:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .article h2 {
+            color: #007BFF;
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .article p {
+            margin-top: 10px;
+        }
+
+        .empty-message {
+            text-align: center;
+            font-style: italic;
+            color: gray;
+        }
+
+        a {
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bienvenue sur Blog2</h1>
+    <div id="articles-container">
+        <p class="empty-message">Aucun article disponible pour le moment.</p>
+    </div>
+
+    <div class="header">
+        <a href="acceuilg2.html" class="home-button" title="Accueil">🏠</a>
+    </div>
+
+    <script>
+        const articlesContainer = document.getElementById("articles-container");
+
+        // Charger les articles depuis le localStorage pour Blog2
+        function loadArticles() {
+            const articles = JSON.parse(localStorage.getItem("articles_blog2")) || [];
+            articlesContainer.innerHTML = "";
+
+            if (articles.length === 0) {
+                articlesContainer.innerHTML = `<p class="empty-message">Aucun article disponible pour le moment.</p>`;
+            } else {
+                // Trier les articles du plus récent au plus ancien
+                const sortedArticles = articles.reverse();
+
+                sortedArticles.forEach(article => {
+                    const articleElement = document.createElement("div");
+                    articleElement.className = "article";
+                    articleElement.innerHTML = `
+                        <h2>${article.title}</h2>
+                        <p>${article.content}</p>
+                    `;
+                    articlesContainer.appendChild(articleElement);
+                });
+            }
+        }
+
+        loadArticles();
+    </script>
+</body>
+</html>

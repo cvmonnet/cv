@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier Blog2</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007BFF;
+            margin-top: 30px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        form {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        form input, form textarea {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        form input:focus, form textarea:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+
+        form button {
+            padding: 12px 20px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
+        #articles-container {
+            margin-top: 40px;
+        }
+
+        .article {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .article h2 {
+            color: #007BFF;
+            margin: 0;
+        }
+
+        .article p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .article button {
+            padding: 8px 15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .article button:hover {
+            background-color: #c82333;
+        }
+
+        .article .edit-btn {
+            background-color: #28a745;
+        }
+
+        .article .edit-btn:hover {
+            background-color: #218838;
+        }
+
+        a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Modifier Blog2</h1>
+
+        <div class="header">
+            <a href="adming2.html" class="home-button" title="Accueil">🏠</a>
+        </div>
+
+        <form id="article-form">
+            <input type="text" id="title" placeholder="Titre de l'article" required>
+            <textarea id="content" placeholder="Contenu de l'article" rows="5" required></textarea>
+            <button type="submit" id="submit-button">Ajouter l'article</button>
+        </form>
+
+        <div id="articles-container"></div>
+
+        <a href="blogg2.html">Retour au Blog</a>
+    </div>
+
+    <script>
+        const form = document.getElementById("article-form");
+        const titleInput = document.getElementById("title");
+        const contentInput = document.getElementById("content");
+        const articlesContainer = document.getElementById("articles-container");
+        const submitButton = document.getElementById("submit-button");
+
+        let articles = JSON.parse(localStorage.getItem("articles_blog2")) || [];
+        let currentEditIndex = null;
+
+        // Charger les articles depuis le localStorage pour Blog2
+        function loadArticles() {
+            articlesContainer.innerHTML = "";
+            articles.forEach((article, index) => {
+                const articleElement = document.createElement("div");
+                articleElement.className = "article";
+                articleElement.innerHTML = `
+                    <h2>${article.title}</h2>
+                    <p>${article.content}</p>
+                    <button class="edit-btn" onclick="editArticle(${index})">Modifier</button>
+                    <button onclick="deleteArticle(${index})">Supprimer</button>
+                `;
+                articlesContainer.appendChild(articleElement);
+            });
+        }
+
+        // Ajouter ou modifier un article
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const title = titleInput.value.trim();
+            const content = contentInput.value.trim();
+
+            if (title && content) {
+                if (currentEditIndex === null) {
+                    // Ajouter un nouvel article
+                    articles.push({ title, content });
+                } else {
+                    // Modifier un article existant
+                    articles[currentEditIndex] = { title, content };
+                    currentEditIndex = null; // Réinitialiser après modification
+                    submitButton.textContent = "Ajouter l'article"; // Réinitialiser le bouton
+                }
+
+                localStorage.setItem("articles_blog2", JSON.stringify(articles));
+                form.reset();
+                loadArticles();
+            }
+        });
+
+        // Modifier un article
+        window.editArticle = (index) => {
+            const article = articles[index];
+            titleInput.value = article.title;
+            contentInput.value = article.content;
+            currentEditIndex = index;
+            submitButton.textContent = "Modifier l'article";
+        };
+
+        // Supprimer un article
+        window.deleteArticle = (index) => {
+            articles.splice(index, 1);
+            localStorage.setItem("articles_blog2", JSON.stringify(articles));
+            loadArticles();
+        };
+
+        loadArticles();
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanningG2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .event {
+            background-color: #ffffff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-title {
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .event-date {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .participant-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>PlanningG2</h1>
+    <div id="events-container">
+        <!-- Les événements seront affichés ici -->
+    </div>
+
+    <script>
+        // Chargement des événements depuis localStorage
+        let events = JSON.parse(localStorage.getItem('events')) || [];
+
+        function saveData() {
+            localStorage.setItem('events', JSON.stringify(events));
+        }
+
+        // Fonction pour afficher les événements
+        function displayEvents() {
+            const eventsContainer = document.getElementById('events-container');
+            eventsContainer.innerHTML = '';
+
+            events.forEach((event, index) => {
+                const eventDiv = document.createElement('div');
+                eventDiv.classList.add('event');
+
+                const titleDiv = document.createElement('div');
+                titleDiv.classList.add('event-title');
+                titleDiv.innerText = event.title;
+
+                const dateDiv = document.createElement('div');
+                dateDiv.classList.add('event-date');
+                dateDiv.innerText = `Date : ${event.date}`;
+
+                const participantForm = document.createElement('div');
+                participantForm.classList.add('participant-form');
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = event.participants.length > 0; // Vérifie s'il y a des participants
+                checkbox.onchange = () => {
+                    const currentName = event.participants[0]?.name || ''; // Nom du premier participant
+
+                    if (checkbox.checked) {
+                        const name = prompt("Entrez votre prénom pour participer à l'événement :");
+                        if (name && !event.participants.some(p => p.name === name)) {
+                            event.participants.push({ name });
+                            saveData();
+                            displayEvents();
+                        } else if (!name) {
+                            alert("Nom invalide ou déjà inscrit.");
+                            checkbox.checked = false;
+                        }
+                    } else {
+                        if (confirm("Voulez-vous vraiment vous désinscrire ?")) {
+                            event.participants = event.participants.filter(p => p.name !== currentName);
+                            saveData();
+                            displayEvents();
+                        } else {
+                            checkbox.checked = true;
+                        }
+                    }
+                };
+
+                participantForm.appendChild(checkbox);
+                participantForm.append("Participer");
+
+                const participantsList = document.createElement('div');
+                participantsList.innerHTML = "<strong>Participants :</strong> " + event.participants.map(p => p.name).join(", ");
+
+                eventDiv.appendChild(titleDiv);
+                eventDiv.appendChild(dateDiv);
+                eventDiv.appendChild(participantForm);
+                eventDiv.appendChild(participantsList);
+                eventsContainer.appendChild(eventDiv);
+            });
+        }
+
+        // Exemple d'événements pour les tests
+        if (events.length === 0) {
+            events = [
+                { title: "Réunion d'équipe", date: "2024-11-20", participants: [] },
+                { title: "Conférence", date: "2024-11-25", participants: [] }
+            ];
+            saveData();
+        }
+
+        displayEvents();
+    </script>
+
+<div class="header">
+    <a href="acceuilg2.html" class="home-button" title="Accueil">🏠</a>
+</div>
+
+</body>
+</html>

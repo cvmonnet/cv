@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synchronisation des Données</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f7f7f7;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    .data-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    .data-item {
+      background-color: #f1f1f1;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Synchronisation des Données</h1>
+    <ul id="dataList" class="data-list">
+      <!-- Les données seront affichées ici -->
+    </ul>
+    <button onclick="addData()">Ajouter des Données</button>
+  </div>
+
+  <script>
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "VOTRE_API_KEY",
+      authDomain: "VOTRE_AUTH_DOMAIN",
+      projectId: "VOTRE_PROJECT_ID",
+      storageBucket: "VOTRE_STORAGE_BUCKET",
+      messagingSenderId: "VOTRE_MESSAGING_SENDER_ID",
+      appId: "VOTRE_APP_ID"
+    };
+
+    // Initialiser Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(app);
+
+    // Fonction pour afficher les données synchronisées
+    function displayData(data) {
+      const dataList = document.getElementById('dataList');
+      const li = document.createElement('li');
+      li.className = 'data-item';
+      li.textContent = data;
+      dataList.appendChild(li);
+    }
+
+    // Fonction pour ajouter de nouvelles données
+    function addData() {
+      const dataToAdd = prompt("Entrez de nouvelles données à ajouter :");
+
+      if (dataToAdd) {
+        // Ajouter les données à Firestore
+        db.collection("synchronisation").add({
+          data: dataToAdd,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+          console.log("Données ajoutées avec succès !");
+        })
+        .catch((error) => {
+          console.error("Erreur lors de l'ajout des données : ", error);
+        });
+      }
+    }
+
+    // Synchroniser les données en temps réel
+    db.collection("synchronisation")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        const dataList = document.getElementById('dataList');
+        dataList.innerHTML = ''; // Vider la liste avant de la remplir à nouveau
+
+        snapshot.forEach((doc) => {
+          displayData(doc.data().data);
+        });
+      });
+
+  </script>
+</body>
+</html>

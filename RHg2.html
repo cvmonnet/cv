@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .save-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .home-icon {
+            font-size: 24px;
+            color: #007BFF;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .home-icon:hover {
+            color: #0056b3;
+        }
+
+        .name-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .name-item {
+            padding: 15px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            overflow: hidden;
+        }
+
+        .name-details {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .name-item.open .name-details {
+            display: block;
+        }
+
+        .editable-text {
+            width: 100%;
+            height: 60px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+
+        .editable-field {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .role-select {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button class="save-button" onclick="saveData()">Enregistrer</button>
+        <a href="adming2.html" class="home-icon" title="Retour à l'accueil">🏠</a>
+    </div>
+
+    <div class="name-list">
+        <script>
+            // Utilisation d'une clé différente pour éviter le mélange des données
+            let data = JSON.parse(localStorage.getItem('userData_g2')) || {};
+            let openItemIndex = null;
+
+            // Initialisation des données par défaut pour 20 cases
+            for (let i = 1; i <= 20; i++) {
+                if (!data[i]) {
+                    data[i] = {
+                        nom: `Nom ${i}`,
+                        prenom: `Prénom ${i}`,
+                        classe: `Classe ${i}`,
+                        roles: [],
+                        notes: ''
+                    };
+                }
+            }
+
+            // Affichage des cases
+            for (let i = 1; i <= 20; i++) {
+                document.write(`
+                    <div class="name-item" id="name-item-${i}" onclick="toggleDetails(${i})">
+                        <input type="text" value="${data[i].prenom}" readonly class="display-name" style="border: none; background: transparent; cursor: pointer;">
+                        <div class="name-details" onclick="event.stopPropagation();">
+                            <p>Nom : <input type="text" class="editable-field nom" value="${data[i].nom}" oninput="updateData(${i})"></p>
+                            <p>Prénom : <input type="text" class="editable-field prenom" value="${data[i].prenom}" oninput="updateData(${i}); updateDisplayName(this, ${i});"></p>
+                            <p>Classe : <input type="text" class="editable-field classe" value="${data[i].classe}" oninput="updateData(${i})"></p>
+                            <p>Rôle : 
+                                <select class="role-select" multiple onchange="limitSelection(this, ${i})">
+                                    <option value="Admin" ${data[i].roles.includes('Admin') ? 'selected' : ''}>Admin</option>
+                                    <option value="Caméra" ${data[i].roles.includes('Caméra') ? 'selected' : ''}>Caméra</option>
+                                    <option value="Régie" ${data[i].roles.includes('Régie') ? 'selected' : ''}>Régie</option>
+                                    <option value="Réalisateur" ${data[i].roles.includes('Réalisateur') ? 'selected' : ''}>Réalisateur</option>
+                                    <option value="Micro" ${data[i].roles.includes('Micro') ? 'selected' : ''}>Micro</option>
+                                    <option value="Matériel" ${data[i].roles.includes('Matériel') ? 'selected' : ''}>Matériel</option>
+                                </select>
+                            </p>
+                            <textarea class="editable-text notes" placeholder="Écrire un texte..." oninput="updateData(${i})">${data[i].notes}</textarea>
+                        </div>
+                    </div>
+                `);
+            }
+
+            // Enregistrement des données dans le localStorage
+            function saveData() {
+                localStorage.setItem('userData_g2', JSON.stringify(data));
+                alert('Données enregistrées avec succès !');
+            }
+
+            // Mise à jour des données locales lors des modifications
+            function updateData(index) {
+                const nameItem = document.querySelector(`#name-item-${index}`);
+                data[index] = {
+                    nom: nameItem.querySelector('.nom').value,
+                    prenom: nameItem.querySelector('.prenom').value,
+                    classe: nameItem.querySelector('.classe').value,
+                    roles: Array.from(nameItem.querySelector('.role-select').selectedOptions).map(option => option.value),
+                    notes: nameItem.querySelector('.notes').value
+                };
+            }
+
+            // Limiter à 2 sélections pour les rôles
+            function limitSelection(select, index) {
+                if (select.selectedOptions.length > 2) {
+                    select.options[select.selectedIndex].selected = false;
+                    alert("Vous ne pouvez sélectionner que deux rôles au maximum.");
+                }
+                updateData(index);
+            }
+
+            // Mettre à jour l'affichage du prénom dans la case principale
+            function updateDisplayName(input, index) {
+                const nameItem = document.querySelector(`#name-item-${index}`);
+                nameItem.querySelector('.display-name').value = input.value;
+            }
+
+            // Basculer l'affichage des détails d'une case
+            function toggleDetails(index) {
+                const currentItem = document.querySelector(`#name-item-${index}`);
+
+                if (openItemIndex !== null && openItemIndex !== index) {
+                    document.querySelector(`#name-item-${openItemIndex}`).classList.remove('open');
+                }
+
+                if (currentItem.classList.contains('open')) {
+                    currentItem.classList.remove('open');
+                    openItemIndex = null;
+                } else {
+                    currentItem.classList.add('open');
+                    openItemIndex = index;
+                }
+            }
+        </script>
+    </div>
+
+</body>
+</html>

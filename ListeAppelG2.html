@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ListeAppelG2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .attendance-list {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 350px;
+        }
+
+        .attendance-list h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .student {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .attendance {
+            display: flex;
+            gap: 10px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #date, #search-date {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="attendance-list">
+        <h2>ListeAppelG2</h2>
+        <input type="date" id="date" />
+        
+        <div id="students-container">
+            <!-- Les élèves seront ajoutés ici dynamiquement -->
+        </div>
+
+        <div class="buttons">
+            <button onclick="addStudent()">Ajouter un élève</button>
+            <button onclick="recordAttendance()">Enregistrer la Présence</button>
+            <button onclick="showPercentages()">Voir Pourcentages</button>
+        </div>
+
+        <h2>Recherche par Date</h2>
+        <input type="date" id="search-date" />
+        <button onclick="searchAttendanceByDate()">Voir Présence</button>
+        <div id="search-result"></div>
+    </div>
+
+    <script>
+        // Chargement des données depuis localStorage
+        let attendanceRecords = JSON.parse(localStorage.getItem('attendanceRecords')) || {};
+
+        const studentsContainer = document.getElementById("students-container");
+
+        // Fonction pour sauvegarder les données dans localStorage
+        function saveData() {
+            localStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
+        }
+
+        // Fonction pour ajouter un élève
+        function addStudent() {
+            const name = prompt("Entrez le prénom de l'élève :");
+            if (name && !attendanceRecords[name]) {
+                attendanceRecords[name] = {};  // Initialise l'enregistrement pour cet élève
+                saveData();
+
+                renderStudent(name);
+            } else {
+                alert("Nom déjà existant ou invalide !");
+            }
+        }
+
+        // Fonction pour afficher un élève dans la liste
+        function renderStudent(name) {
+            const studentDiv = document.createElement("div");
+            studentDiv.classList.add("student");
+            studentDiv.id = `student-${name}`;
+
+            const nameLabel = document.createElement("label");
+            nameLabel.innerText = name;
+
+            const attendanceDiv = document.createElement("div");
+            attendanceDiv.classList.add("attendance");
+
+            const presentInput = createRadioInput(name, "présent");
+            const absentInput = createRadioInput(name, "absent");
+            const tardyInput = createRadioInput(name, "retard");
+
+            attendanceDiv.appendChild(createLabelWithInput("Présent", presentInput));
+            attendanceDiv.appendChild(createLabelWithInput("Absent", absentInput));
+            attendanceDiv.appendChild(createLabelWithInput("Retard", tardyInput));
+
+            const deleteButton = document.createElement("button");
+            deleteButton.innerText = "Supprimer";
+            deleteButton.onclick = () => deleteStudent(name);
+
+            studentDiv.appendChild(nameLabel);
+            studentDiv.appendChild(attendanceDiv);
+            studentDiv.appendChild(deleteButton);
+            studentsContainer.appendChild(studentDiv);
+        }
+
+        // Fonction pour créer un bouton radio pour un statut
+        function createRadioInput(name, value) {
+            const input = document.createElement("input");
+            input.type = "radio";
+            input.name = name;
+            input.value = value;
+            return input;
+        }
+
+        // Fonction pour créer un label avec un input
+        function createLabelWithInput(text, input) {
+            const label = document.createElement("label");
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(text));
+            return label;
+        }
+
+        // Fonction pour supprimer un élève
+        function deleteStudent(name) {
+            if (confirm(`Êtes-vous sûr de vouloir supprimer ${name} ?`)) {
+                delete attendanceRecords[name];
+                saveData();
+                document.getElementById(`student-${name}`).remove();
+            }
+        }
+
+        // Fonction pour enregistrer la présence pour une date donnée
+        function recordAttendance() {
+            const date = document.getElementById("date").value;
+            if (!date) {
+                alert("Veuillez sélectionner une date !");
+                return;
+            }
+
+            const students = document.querySelectorAll('.student');
+
+            students.forEach(student => {
+                const name = student.querySelector('label').innerText;
+                const present = student.querySelector('input[value="présent"]').checked;
+                const absent = student.querySelector('input[value="absent"]').checked;
+                const tardy = student.querySelector('input[value="retard"]').checked;
+
+                const status = present ? "Présent" : tardy ? "Retard" : "Absent";
+
+                // Remplace l'enregistrement existant pour la date
+                attendanceRecords[name][date] = status;
+            });
+
+            saveData();
+            alert("Présence enregistrée pour la date sélectionnée !");
+        }
+
+        // Fonction pour afficher les pourcentages de présence, absence et retard
+        function showPercentages() {
+            let message = "Pourcentages de présence, absence et retard :\n\n";
+
+            for (let name in attendanceRecords) {
+                let presentCount = 0;
+                let tardyCount = 0;
+                let totalSessions = 0;
+
+                for (let date in attendanceRecords[name]) {
+                    const status = attendanceRecords[name][date];
+                    totalSessions++;
+                    if (status === "Présent") presentCount++;
+                    if (status === "Retard") tardyCount++;
+                }
+
+                const presencePercentage = totalSessions > 0 ? (presentCount / totalSessions * 100).toFixed(2) : 0;
+                const tardyPercentage = totalSessions > 0 ? (tardyCount / totalSessions * 100).toFixed(2) : 0;
+                const absencePercentage = 100 - presencePercentage - tardyPercentage;
+
+                message += `${name} - Présent: ${presencePercentage}% | Retard: ${tardyPercentage}% | Absent: ${absencePercentage}%\n`;
+            }
+
+            alert(message);
+        }
+
+        // Fonction de recherche de présence par date
+        function searchAttendanceByDate() {
+            const date = document.getElementById("search-date").value;
+            if (!date) {
+                alert("Veuillez sélectionner une date pour la recherche !");
+                return;
+            }
+
+            let result = `Présence pour la date ${date} :\n\n`;
+            let found = false;
+
+            for (let name in attendanceRecords) {
+                const status = attendanceRecords[name][date];
+                if (status) {
+                    result += `${name}: ${status}\n`;
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                result = `Aucun enregistrement trouvé pour la date ${date}.`;
+            }
+
+            document.getElementById("search-result").innerText = result;
+        }
+
+        // Chargement initial des élèves et de leurs présences
+        function loadStudents() {
+            for (let name in attendanceRecords) {
+                renderStudent(name);
+            }
+        }
+
+        loadStudents();
+    </script>
+
+<div class="header">
+    <a href="adming2.html" class="home-button" title="Accueil">🏠</a>
+</div>
+
+</body>
+</html>

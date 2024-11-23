@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            display: block;
+            margin: 10px auto;
+            padding: 15px 30px;
+            font-size: 18px;
+            color: white;
+            background-color: #5c7cfa;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background-color: #4a65d4;
+        }
+
+        .home-icon {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="home-button" title="Accueil">🏠</a>
+    </div>
+
+    <div class="container">
+        <h1>G1</h1>
+        <a href="blogg1.html" class="button">Blog</a>
+        <a href="plannigg1.html" class="button">Planning</a>
+        <a href="lien.html" class="button">Lien</a>
+        <a href="https://www.canva.com/design/DAGWuxjEbyg/XJ5NyK9Iina48EE4LrN4Nw/view?utm_content=DAGWuxjEbyg&utm_campaign=designshare&utm_medium=link&utm_source=editor" class="button">Projet</a>
+    </div>
+
+    <script>
+        // Code PIN requis pour accéder à la page
+        const correctPin = "3465";
+    
+        // Demande du code PIN
+        let enteredPin = prompt("Entrez le code PIN pour accéder à cette page :");
+    
+        // Vérification du code PIN
+        if (enteredPin !== correctPin) {
+            alert("Code PIN incorrect. Vous ne pouvez pas accéder à cette page.");
+            window.location.href = "loginclub.html"; // Redirection vers une page d'accueil ou une autre page
+        }
+    </script>
+      
+</body>
+</html>

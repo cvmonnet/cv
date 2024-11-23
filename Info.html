@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cases avec Texte</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+        }
+        .case {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+        .case:hover {
+            background-color: #f9f9f9;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="adminMonnet.html" class="home-button" title="Accueil">🏠</a>
+    </div>
+
+    <div class="container">
+        <div class="case" id="case-G1">
+            <h2>Case G1</h2>
+            <textarea id="textarea-G1" placeholder="Écrivez quelque chose dans la case G1..."></textarea>
+            <br>
+            <button onclick="saveText('G1')">Sauvegarder G1</button>
+        </div>
+
+        <div class="case" id="case-G2">
+            <h2>Case G2</h2>
+            <textarea id="textarea-G2" placeholder="Écrivez quelque chose dans la case G2..."></textarea>
+            <br>
+            <button onclick="saveText('G2')">Sauvegarder G2</button>
+        </div>
+    </div>
+
+    <script>
+        // Charger les textes sauvegardés depuis le localStorage
+        document.getElementById('textarea-G1').value = localStorage.getItem('text-G1') || '';
+        document.getElementById('textarea-G2').value = localStorage.getItem('text-G2') || '';
+
+        // Fonction pour sauvegarder le texte dans le localStorage
+        function saveText(caseName) {
+            const text = document.getElementById('textarea-' + caseName).value;
+            localStorage.setItem('text-' + caseName, text); // Utilisation d'une clé différente pour chaque case
+            alert('Texte sauvegardé dans ' + caseName);
+        }
+    </script>
+
+</body>
+</html>
